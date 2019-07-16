@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/TrepnLib/TrepnLib.iml" filepath="$PROJECT_DIR$/TrepnLib/TrepnLib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TrepnLibrary.iml" filepath="$PROJECT_DIR$/TrepnLibrary.iml" />
+    </modules>
+  </component>
+</project>
