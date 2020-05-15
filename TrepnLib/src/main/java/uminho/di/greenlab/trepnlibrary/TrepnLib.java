@@ -18,9 +18,10 @@ import java.io.OutputStreamWriter;
 import java.nio.channels.FileChannel;
 import java.util.Scanner;
 
+
 public class TrepnLib {
 
-    static Context context ; // we try to ensure that this reference is endeed lost to prevent memory leaks
+    static Context context ; // we try to ensure that this reference is indeed lost to prevent memory leaks
     static int globalState = 0;
     static int qtdTraces = 0;
     static int qtdMeasures =0;
@@ -228,7 +229,7 @@ public class TrepnLib {
                 }
                 f1.delete();
                 f3.delete();
-                if(directory3.list().length-1!=qtdMeasures){
+                if(directory3.list().length>0 && directory3.list().length-1!=qtdMeasures){
                     File f = new File(sdCard.getAbsolutePath() + "/trepn/Measures/"+"GreendroidResultTrace" + directory3.list().length +".csv");
                     try {
                         f.createNewFile();
@@ -292,7 +293,7 @@ public class TrepnLib {
                 }
                 f1.delete();
                 File directory2 = new File(sdCard.getAbsolutePath() + "/trepn/Traces");
-                if(directory2.list().length-1!=qtdTraces){
+                if(directory2.list().length>0 && directory2.list().length-1!=qtdTraces){
                     File f = new File(sdCard.getAbsolutePath() + "/trepn/Traces/" + "TracedMethods" + directory2.list().length + ".txt");
                     try {
                         f.createNewFile();
@@ -397,14 +398,12 @@ public class TrepnLib {
             FileOutputStream fOut = null;
             try {
                 fOut = new FileOutputStream(file, true);
-            } catch (FileNotFoundException e) {
-            }
-            OutputStreamWriter osw = new OutputStreamWriter(fOut);
-            try {
+                OutputStreamWriter osw = new OutputStreamWriter(fOut);
                 osw.write(methodName + "\n");
                 osw.flush();
                 osw.close();
             } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -415,14 +414,14 @@ public class TrepnLib {
             if (state == 0) {
                 Intent stateUpdate = new Intent("com.quicinc.Trepn.UpdateAppState");
                 globalState--;
-                int x = new Integer(globalState);
+                int x = Integer.valueOf(globalState);
                 stateUpdate.putExtra("com.quicinc.Trepn.UpdateAppState.Value", x);
                 stateUpdate.putExtra("com.quicinc.Trepn.UpdateAppState.Value.Desc", description);
                 ctx.sendBroadcast(stateUpdate);
             } else {
                 Intent stateUpdate = new Intent("com.quicinc.Trepn.UpdateAppState");
                 ++globalState;
-                int x = new Integer(globalState);
+                int x = Integer.valueOf(globalState);
                 stateUpdate.putExtra("com.quicinc.Trepn.UpdateAppState.Value",x);
                 stateUpdate.putExtra("com.quicinc.Trepn.UpdateAppState.Value.Desc", description);
                 ctx.sendBroadcast(stateUpdate);
