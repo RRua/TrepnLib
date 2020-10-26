@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Environment;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -334,7 +335,7 @@ public class TrepnLib {
                 } catch (InterruptedException e) {
                 }
                 Intent stateUpdate = new Intent("com.quicinc.Trepn.UpdateAppState");
-                stateUpdate.putExtra("com.quicinc.Trepn.UpdateAppState.Value", -1);
+                stateUpdate.putExtra("com.quicinc.Trepn.UpdateAppState.Value", String.valueOf(-1));
                 stateUpdate.putExtra("com.quicinc.Trepn.UpdateAppState.Value.Desc", "");
                 ctx.sendBroadcast(stateUpdate);
                 Intent stopProfiling = new Intent("com.quicinc.trepn.stop_profiling");
@@ -372,6 +373,10 @@ public class TrepnLib {
                 if (destChannel != null)
                     destChannel.close();
             } catch (IOException e) {
+
+            }finally {
+                close(destChannel);
+                close(sourceChannel);
             }
 
         }
@@ -396,14 +401,17 @@ public class TrepnLib {
             File directory = new File(sdCard.getAbsolutePath() + "/trepn");
             File file = new File(directory, "TracedMethods.txt");
             FileOutputStream fOut = null;
+            OutputStreamWriter osw = null;
             try {
                 fOut = new FileOutputStream(file, true);
-                OutputStreamWriter osw = new OutputStreamWriter(fOut);
+                osw = new OutputStreamWriter(fOut);
                 osw.write(methodName + "\n");
                 osw.flush();
-                osw.close();
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                close(osw);
+                close(fOut);
             }
         }
     }
@@ -415,14 +423,14 @@ public class TrepnLib {
                 Intent stateUpdate = new Intent("com.quicinc.Trepn.UpdateAppState");
                 globalState--;
                 int x = Integer.valueOf(globalState);
-                stateUpdate.putExtra("com.quicinc.Trepn.UpdateAppState.Value", x);
+                stateUpdate.putExtra("com.quicinc.Trepn.UpdateAppState.Value", String.valueOf(x));
                 stateUpdate.putExtra("com.quicinc.Trepn.UpdateAppState.Value.Desc", description);
                 ctx.sendBroadcast(stateUpdate);
             } else {
                 Intent stateUpdate = new Intent("com.quicinc.Trepn.UpdateAppState");
                 ++globalState;
                 int x = Integer.valueOf(globalState);
-                stateUpdate.putExtra("com.quicinc.Trepn.UpdateAppState.Value",x);
+                stateUpdate.putExtra("com.quicinc.Trepn.UpdateAppState.Value",String.valueOf(x));
                 stateUpdate.putExtra("com.quicinc.Trepn.UpdateAppState.Value.Desc", description);
                 ctx.sendBroadcast(stateUpdate);
             }
@@ -445,7 +453,9 @@ public class TrepnLib {
                 fOut = new FileOutputStream(file, true);
             } catch (FileNotFoundException e) {
             }
-
+            finally {
+                close(fOut);
+            }
             OutputStreamWriter osw = new OutputStreamWriter(fOut);
             try {
                 osw.write(testName + "\n");
@@ -453,11 +463,25 @@ public class TrepnLib {
                 osw.close();
             } catch (IOException e) {
             }
+            finally {
+                close(osw);
+            }
         }
     }
 
     private static Application getApplicationUsingReflection() throws Exception {
         return (Application) Class.forName("android.app.ActivityThread")
                 .getMethod("currentApplication").invoke(null, (Object[]) null);
+    }
+
+
+
+    public static void close(Closeable c) {
+        if (c == null) return;
+        try {
+            c.close();
+        } catch (IOException e) {
+            //log the exception
+        }
     }
 }
